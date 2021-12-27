@@ -36,8 +36,6 @@ sha512sums=('SKIP'
             'SKIP')
 
 _backports=(
-  # chrattr-util: return EOPNOTSUPP from chrattr_full if no other failure was observed
-  '7c3b51c469140cdbc1b7e9a232af3f250fea3884'
 )
 
 _reverts=(
@@ -146,19 +144,14 @@ build() {
     )
 
     _ebin+=(
-        systemd-sysusers.standalone
-        systemd-tmpfiles.standalone
+        systemd-{sysusers,tmpfiles}.standalone
         sysusers.d/basic.conf
-        tmpfiles.d/etc.conf
-        tmpfiles.d/static-nodes-permissions.conf
-        tmpfiles.d/var.conf
+        tmpfiles.d/{etc,static-nodes-permissions,var}.conf
     )
 
     _man+=(
-        man/sysusers.d.5
-        man/tmpfiles.d.5
-        man/systemd-sysusers.8
-        man/systemd-tmpfiles.8
+        man/{sysusers,tmpfiles}.d.5
+        man/systemd-{sysusers,tmpfiles}.8
         man/{libudev.3,udev.conf.5,hwdb.7,udev.7,udevadm.8}
     )
 
