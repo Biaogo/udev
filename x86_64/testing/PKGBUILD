@@ -11,7 +11,7 @@ pkgdesc='Userspace device file manager'
 _tag='9c8279cdd5d0bc256b8cc0ced2312e27e069a214' # git rev-parse v${_tag_name}
 _tag_name=250
 pkgver="${_tag_name/-/}"
-pkgrel=1
+pkgrel=2
 arch=('x86_64')
 url='https://www.github.com/systemd/systemd'
 license=('GPL2' 'LGPL2.1')
@@ -36,6 +36,8 @@ sha512sums=('SKIP'
             'SKIP')
 
 _backports=(
+  # chrattr-util: return EOPNOTSUPP from chrattr_full if no other failure was observed
+  '7c3b51c469140cdbc1b7e9a232af3f250fea3884'
 )
 
 _reverts=(
