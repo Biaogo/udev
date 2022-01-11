@@ -8,15 +8,15 @@ _pkgbase=systemd-stable
 pkgbase=udev
 pkgname=('udev' 'libudev' 'esysusers' 'etmpfiles')
 pkgdesc='Userspace device file manager'
-_tag='4572cdce239cea0762b37d38005863f30b89b76a' # git rev-parse v${_tag_name}
-_tag_name=250.1
+_tag='95d0353dad616c275fda9b123ba9660e16b20d0a' # git rev-parse v${_tag_name}
+_tag_name=250.2
 pkgver="${_tag_name/-/}"
 pkgrel=1
 arch=('x86_64')
 url='https://www.github.com/systemd/systemd'
 license=('GPL2' 'LGPL2.1')
 makedepends=('acl' 'libacl.so' 'kmod' 'libkmod.so' 'util-linux' 'libblkid.so'
-             'hwids' 'libcap' 'libcap.so' 'kbd' 'gperf' 'intltool' 'git'
+             'hwdata' 'libcap' 'libcap.so' 'kbd' 'gperf' 'intltool' 'git'
              'meson' 'docbook-xsl' 'rsync' 'python-jinja')
 options=('strip')
 validpgpkeys=('63CDA1E5D3FC22B998D20DD6327F26951A015CC4'  # Lennart Poettering <lennart@poettering.net>
@@ -161,7 +161,7 @@ build() {
 package_udev() {
     pkgdesc='Userspace device file manager'
     depends=('acl' 'libacl.so' 'kmod' 'libkmod.so'
-            'util-linux' 'libblkid.so' 'libudev' 'hwids' 'kbd')
+            'util-linux' 'libblkid.so' 'libudev' 'hwdata' 'kbd')
     provides=("udev=$pkgver" 'eudev')
     replaces=('eudev')
 
