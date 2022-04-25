@@ -11,7 +11,7 @@ pkgdesc='Userspace device file manager'
 _tag='5aba21f1561d48fdcf7f4670263ba109c25c1ea6' # git rev-parse v${_tag_name}
 _tag_name=250.4
 pkgver="${_tag_name/-/}"
-pkgrel=1
+pkgrel=2
 arch=('x86_64')
 url='https://www.github.com/systemd/systemd'
 license=('GPL2' 'LGPL2.1')
@@ -162,8 +162,8 @@ package_udev() {
     pkgdesc='Userspace device file manager'
     depends=('acl' 'libacl.so' 'kmod' 'libkmod.so'
             'util-linux' 'libblkid.so' 'libudev' 'hwdata' 'kbd')
-    provides=("udev=$pkgver" 'eudev')
-    replaces=('eudev')
+    provides=("udev=$pkgver") # 'eudev')
+    # replaces=('eudev')
 
     install -d "${pkgdir}"/etc/udev/{hwdb,rules}.d
     mv -v "$_pkgbase"/src/udev/udev.conf "${pkgdir}"/etc/udev
@@ -207,8 +207,8 @@ package_udev() {
 package_libudev() {
     pkgdesc='udev library for enumerating and introspecting local devices'
     depends=('gcc-libs')
-    provides=('libudev.so' 'libeudev')
-    replaces=('libeudev')
+    provides=('libudev.so') # 'libeudev')
+    # replaces=('libeudev')
 
     install -d "${pkgdir}"/usr/lib
     mv -v build/{libudev.so{,.1},$(_get_libudev)} "${pkgdir}"/usr/lib/
