@@ -11,7 +11,7 @@ pkgdesc='Userspace device file manager'
 _tag='6cbeb4b82eababbf82ee54c150e95ddfe83aaefa' # git rev-parse v${_tag_name}
 _tag_name=251-rc3
 pkgver="${_tag_name/-/}"
-pkgrel=1
+pkgrel=2
 arch=('x86_64')
 url='https://www.github.com/systemd/systemd'
 license=('GPL2' 'LGPL2.1')
@@ -37,7 +37,7 @@ sha512sums=('SKIP'
             '32606b42856b5f3ea7f485143e532671f58986237e14c58ea5ab17383dc39a375cb6c738c8a2db9e4a8c8be88ea44a876d6bbed129cb2f5c9aa3f8228b04d927'
             '38eed28d42ac8f70bc8d1058ace35f137f7f5c972442ee14b98c2146202e0615aa584304edbd59e8608d1b6bec3cb391fc69b25393740f6eabd8fc5ad3bde64f'
             'SKIP'
-            '4142d0e09b0c797c5e039a14d6640c3fda00e1eedd570514b9f195712a1fc03def871c1a7e58eb613e1ed1b89c6ca4c66b1049f781d8987828bc897a9d62b7e8'
+            'a5a00f2a85e62a3d62a899ffbd33af2f85b03559a916a90ff05339f7ca2e3f72ac84cd0e2caf67adcd92736fff01b7c82ff93aef43b6922872411092efc60198'
             'a26003ddcac5a83ec1fec040b36ff46816869028dc79aebb2646f9f2ed090e6358601f911c9d6a04b426c7f3367595e12716e411fca34ffce59d718b067e4e5c')
 
 _backports=(
@@ -133,7 +133,9 @@ build() {
         -Dlibidn=false
         -Dlibidn2=false
         -Dlibiptc=false
+
         -Dlocaled=false
+
         -Dlogind=false
         -Dlz4=false
         -Dmachined=false
@@ -191,6 +193,7 @@ build() {
         tmpfiles.d/{etc,static-nodes-permissions,var}.conf
         man/{sysusers,tmpfiles}.d.5
         man/systemd-{sysusers,tmpfiles}.8
+        factory/templates/locale.conf
 
         systemd-detect-virt
         test/sys
