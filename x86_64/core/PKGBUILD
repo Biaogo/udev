@@ -11,7 +11,7 @@ pkgdesc='Userspace device file manager'
 _tag='20e3fdcb595febff92fe3e89ee33da2c04c5c682' # git rev-parse v${_tag_name}
 _tag_name=250.5
 pkgver="${_tag_name/-/}"
-pkgrel=2
+pkgrel=3
 arch=('x86_64')
 url='https://www.github.com/systemd/systemd'
 license=('GPL2' 'LGPL2.1')
@@ -233,7 +233,7 @@ package_udev() {
     install -vm644 build/src/udev/udev.pc "${pkgdir}"/usr/share/pkgconfig
 
     install -vd "${pkgdir}"/usr/lib/udev
-    install -vm644 build/src/udev/{*_id,mtd_probe} "${pkgdir}"/usr/lib/udev
+    install -vm755 build/src/udev/{*_id,mtd_probe} "${pkgdir}"/usr/lib/udev
 
     install -vd "${pkgdir}"/usr/lib/udev/{hwdb,rules}.d
     install -vm644 build/hwdb.d/* "${pkgdir}"/usr/lib/udev/hwdb.d
