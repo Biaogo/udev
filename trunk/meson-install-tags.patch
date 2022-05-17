@@ -1,14 +1,16 @@
-b232065951d7525a85a15bfd7087f3397ddd40d9
- factory/templates/meson.build |  1 +
- hwdb.d/meson.build            | 11 +++++++++++
- meson.build                   | 28 ++++++++++++++++++++++++++++
- meson_options.txt             |  9 +++++++++
- rules.d/meson.build           |  8 ++++++--
- src/libudev/meson.build       | 10 +++++++++-
- src/udev/meson.build          | 13 +++++++++++++
- sysusers.d/meson.build        |  6 +++++-
- tmpfiles.d/meson.build        | 12 +++++++++++-
- 9 files changed, 93 insertions(+), 5 deletions(-)
+d1a2464166bf56f37269e1c4fbd324bdd24bc248
+ factory/templates/meson.build  |  1 +
+ hwdb.d/meson.build             | 11 +++++++++++
+ meson.build                    | 29 +++++++++++++++++++++++++++++
+ meson_options.txt              |  7 +++++++
+ rules.d/meson.build            |  8 ++++++--
+ src/boot/efi/meson.build       |  4 ++--
+ src/kernel-install/meson.build |  7 +++++++
+ src/libudev/meson.build        | 10 +++++++++-
+ src/udev/meson.build           | 13 +++++++++++++
+ sysusers.d/meson.build         |  6 +++++-
+ tmpfiles.d/meson.build         | 12 +++++++++++-
+ 11 files changed, 101 insertions(+), 7 deletions(-)
 
 diff --git a/factory/templates/meson.build b/factory/templates/meson.build
 index ece2c644ff..43ddbd5158 100644
@@ -21,7 +23,7 @@ index ece2c644ff..43ddbd5158 100644
 +        install_tag : 'tmpfiles',
          install_dir : factory_etc_dir)
 diff --git a/hwdb.d/meson.build b/hwdb.d/meson.build
-index 90b71916b7..ebf5cf05be 100644
+index 90b71916b7..093c5946ac 100644
 --- a/hwdb.d/meson.build
 +++ b/hwdb.d/meson.build
 @@ -43,10 +43,12 @@ if conf.get('ENABLE_HWDB') == 1
@@ -41,7 +43,7 @@ index 90b71916b7..ebf5cf05be 100644
                                           'test -n "$DESTDIR" || @0@/systemd-hwdb update'.format(rootbindir))
          endif
 
-+        if install_udev_standalone
++        if install_sysconfdir_standalone
 +                install_emptydir(
 +                        sysconfdir / 'udev/hwdb.d',
 +                        install_tag : 'udev')
@@ -54,21 +56,20 @@ index 90b71916b7..ebf5cf05be 100644
                  parse_hwdb_py = find_program('parse_hwdb.py')
                  test('parse-hwdb',
 diff --git a/meson.build b/meson.build
-index 60e646ec9f..697d73d21d 100644
+index 36cbfa4893..5b26f12649 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -149,6 +149,10 @@ endif
+@@ -149,6 +149,9 @@ endif
 
  install_sysconfdir = get_option('install-sysconfdir') != 'false'
  install_sysconfdir_samples = get_option('install-sysconfdir') == 'true'
 +
-+install_udev_standalone = get_option('install-udev-standalone')
-+install_tmpfiles_standalone = get_option('install-tmpfiles-standalone')
++install_sysconfdir_standalone = get_option('install-sysconfdir-standalone')
 +
  # Dirs of external packages
  pkgconfigdatadir = get_option('pkgconfigdatadir') != '' ? get_option('pkgconfigdatadir') : datadir / 'pkgconfig'
  pkgconfiglibdir = get_option('pkgconfiglibdir') != '' ? get_option('pkgconfiglibdir') : libdir / 'pkgconfig'
-@@ -198,6 +202,16 @@ randomseeddir = localstatedir / 'lib/systemd'
+@@ -198,6 +201,16 @@ randomseeddir = localstatedir / 'lib/systemd'
  profiledir = rootlibexecdir / 'portable' / 'profile'
  ntpservicelistdir = rootprefixdir / 'lib/systemd/ntp-units.d'
 
@@ -77,15 +78,23 @@ index 60e646ec9f..697d73d21d 100644
 +        default_udevd_symlink = 'systemd-udevd'
 +endif
 +
-+default_udevd_path = get_option('default-udevd-path')
-+if default_udevd_path == ''
-+        default_udevd_path = prefixdir / 'lib/systemd'
++default_udevd_dir = get_option('default-udevd-dir')
++if default_udevd_dir == ''
++        default_udevd_dir = prefixdir / 'lib/systemd'
 +endif
 +
  docdir = get_option('docdir')
  if docdir == ''
          docdir = datadir / 'doc/systemd'
-@@ -3462,6 +3476,7 @@ if enable_sysusers
+@@ -2446,6 +2459,7 @@ if conf.get('HAVE_BLKID') == 1 and conf.get('HAVE_GNU_EFI') == 1
+                 link_with : [boot_link_with],
+                 dependencies : [libblkid],
+                 install_rpath : rootlibexecdir,
++                install_tag : 'boot',
+                 install : true)
+
+         public_programs += executable(
+@@ -3446,6 +3460,7 @@ if enable_sysusers
                                       libbasic_gcrypt,
                                       libsystemd_static],
                          install : true,
@@ -93,7 +102,7 @@ index 60e646ec9f..697d73d21d 100644
                          install_dir : rootbindir)
                  public_programs += exe
 
-@@ -3505,6 +3520,7 @@ if conf.get('ENABLE_TMPFILES') == 1
+@@ -3489,6 +3504,7 @@ if conf.get('ENABLE_TMPFILES') == 1
                                       libsystemd_static],
                          dependencies : [libacl],
                          install : true,
@@ -101,7 +110,7 @@ index 60e646ec9f..697d73d21d 100644
                          install_dir : rootbindir)
                  public_programs += exe
 
-@@ -3525,6 +3541,7 @@ if conf.get('ENABLE_HWDB') == 1
+@@ -3509,6 +3525,7 @@ if conf.get('ENABLE_HWDB') == 1
                  link_with : udev_link_with,
                  install_rpath : udev_rpath,
                  install : true,
@@ -109,7 +118,7 @@ index 60e646ec9f..697d73d21d 100644
                  install_dir : rootbindir)
          public_programs += systemd_hwdb
 
-@@ -3571,9 +3588,18 @@ udevadm = executable(
+@@ -3555,9 +3572,18 @@ udevadm = executable(
                          libblkid],
          install_rpath : udev_rpath,
          install : true,
@@ -117,10 +126,10 @@ index 60e646ec9f..697d73d21d 100644
          install_dir : rootbindir)
  public_programs += udevadm
 
-+if install_udev_standalone
++if install_sysconfdir_standalone
 +        install_symlink(
 +                default_udevd_symlink,
-+                install_dir : default_udevd_path,
++                install_dir : default_udevd_dir,
 +                install_tag : 'udev',
 +                pointing_to : rootbindir / 'udevadm')
 +endif
@@ -128,31 +137,37 @@ index 60e646ec9f..697d73d21d 100644
  if conf.get('ENABLE_REPART') == 1
          exe = executable(
                  'systemd-repart',
-@@ -4154,6 +4180,8 @@ summary({
+@@ -3704,6 +3730,7 @@ public_programs += custom_target(
+         command : [jinja2_cmdline, '@INPUT@', '@OUTPUT@'],
+         install : want_kernel_install,
+         install_mode : 'rwxr-xr-x',
++        install_tag : 'boot',
+         install_dir : bindir)
+
+ ############################################################
+@@ -4138,6 +4165,8 @@ summary({
          'nobody user name' :                nobody_user,
          'nobody group name' :               nobody_group,
          'fallback hostname' :               get_option('fallback-hostname'),
 +        'default udevd symlink name' :      default_udevd_symlink,
-+        'default udevd symlink path' :      default_udevd_path,
++        'default udevd symlink directory' : default_udevd_dir,
          'default compression method' :      compression,
          'default DNSSEC mode' :             default_dnssec,
          'default DNS-over-TLS mode' :       default_dns_over_tls,
 diff --git a/meson_options.txt b/meson_options.txt
-index 26d1170c50..ff30170d64 100644
+index 26d1170c50..611b02c058 100644
 --- a/meson_options.txt
 +++ b/meson_options.txt
-@@ -204,6 +204,15 @@ option('docdir', type : 'string',
+@@ -204,6 +204,13 @@ option('docdir', type : 'string',
  option('install-sysconfdir', type : 'combo', choices : ['true', 'no-samples', 'false'], value : 'true',
         description : 'install configuration files and directories to $sysconfdir')
 
-+option('install-udev-standalone', type : 'boolean', value : false,
-+       description : 'install udev configuration files and directories to $sysconfdir')
-+option('install-tmpfiles-standalone', type : 'boolean', value : false,
++option('install-sysconfdir-standalone', type : 'boolean', value : false,
 +       description : 'install configuration files and directories to $sysconfdir')
 +option('default-udevd-symlink', type : 'string',
 +       description : 'the udevd standalone symlink name')
-+option('default-udevd-path', type : 'string',
-+       description : 'the udevd path')
++option('default-udevd-dir', type : 'string',
++       description : 'the udevd directory')
 +
  option('fallback-hostname', type : 'string', value : 'localhost',
         description : 'the hostname used if none configured')
@@ -190,15 +205,63 @@ index a582e4e922..945c3063bd 100644
                  install_dir : udevrulesdir)
 
          if want
+diff --git a/src/boot/efi/meson.build b/src/boot/efi/meson.build
+index e0edbf18a2..3b626367a0 100644
+--- a/src/boot/efi/meson.build
++++ b/src/boot/efi/meson.build
+@@ -427,7 +427,7 @@ foreach tuple : [['systemd-boot@0@.@1@', systemd_boot_objects, false, 'systemd-b
+                            '-lgnuefi',
+                            '-lgcc'],
+                 install : tuple[2],
+-                install_tag: tuple[3],
++                install_tag: 'boot',
+                 install_dir : bootlibdir)
+
+         efi = custom_target(
+@@ -449,7 +449,7 @@ foreach tuple : [['systemd-boot@0@.@1@', systemd_boot_objects, false, 'systemd-b
+                            efi_format,
+                            '@INPUT@', '@OUTPUT@'],
+                 install : true,
+-                install_tag: tuple[3],
++                install_tag: 'boot',
+                 install_dir : bootlibdir)
+
+         alias_target(tuple[3], efi)
+diff --git a/src/kernel-install/meson.build b/src/kernel-install/meson.build
+index 06c1c3aafb..efaaedd136 100644
+--- a/src/kernel-install/meson.build
++++ b/src/kernel-install/meson.build
+@@ -6,9 +6,11 @@ if want_kernel_install
+         install_data('50-depmod.install',
+                      '90-loaderentry.install',
+                      install_mode : 'rwxr-xr-x',
++                     install_tag : 'boot',
+                      install_dir : kernelinstalldir)
+
+         install_data('install.conf',
++                     install_tag : 'boot',
+                      install_dir : kerneldir)
+
+         if install_sysconfdir
+@@ -16,4 +18,9 @@ if want_kernel_install
+                                          mkdir_p.format(sysconfdir / 'kernel/install.d'))
+         endif
+
++        if install_sysconfdir_standalone
++                install_emptydir(
++                        sysconfdir / 'kernel/install.d',
++                        install_tag : 'boot')
++        endif
+ endif
 diff --git a/src/libudev/meson.build b/src/libudev/meson.build
-index 343fac6945..e3f5abb872 100644
+index 343fac6945..706d77b6d8 100644
 --- a/src/libudev/meson.build
 +++ b/src/libudev/meson.build
 @@ -24,6 +24,14 @@ libudev_sym_path = meson.current_source_dir() / 'libudev.sym'
  install_headers('libudev.h')
  libudev_h_path = meson.current_source_dir() / 'libudev.h'
 
-+if install_udev_standalone
++if install_sysconfdir_standalone
 +        libudev_h_path = meson.current_source_dir() / 'libudev.h'
 +        install_data(
 +                libudev_h_path,
@@ -219,7 +282,7 @@ index 343fac6945..e3f5abb872 100644
 
  ############################################################
 diff --git a/src/udev/meson.build b/src/udev/meson.build
-index 79964a7d8e..37627642e9 100644
+index 79964a7d8e..7d5e3d3c99 100644
 --- a/src/udev/meson.build
 +++ b/src/udev/meson.build
 @@ -152,6 +152,7 @@ foreach prog : udev_progs
@@ -234,7 +297,7 @@ index 79964a7d8e..37627642e9 100644
                       install_dir : sysconfdir / 'udev')
  endif
 
-+if install_udev_standalone
++if install_sysconfdir_standalone
 +        install_data(
 +                'udev.conf',
 +                install_tag : 'udev',
@@ -279,7 +342,7 @@ index 608c4b744a..6a65cd654a 100644
                  install_dir : sysusersdir)
  endforeach
 diff --git a/tmpfiles.d/meson.build b/tmpfiles.d/meson.build
-index 4546169694..ab27e7edc6 100644
+index 4546169694..f034b65612 100644
 --- a/tmpfiles.d/meson.build
 +++ b/tmpfiles.d/meson.build
 @@ -20,7 +20,10 @@ foreach pair : files
@@ -307,7 +370,7 @@ index 4546169694..ab27e7edc6 100644
                  'sh', '-c', mkdir_p.format(sysconfdir / 'tmpfiles.d'))
  endif
 +
-+if enable_tmpfiles and install_tmpfiles_standalone
++if enable_tmpfiles and install_sysconfdir_standalone
 +        install_emptydir(
 +                sysconfdir / 'tmpfiles.d',
 +                install_tag : 'tmpfiles')
