@@ -11,7 +11,7 @@ pkgdesc='Userspace device file manager'
 _tag='6cbeb4b82eababbf82ee54c150e95ddfe83aaefa' # git rev-parse v${_tag_name}
 _tag_name=251-rc3
 pkgver="${_tag_name/-/}"
-pkgrel=2
+pkgrel=3
 arch=('x86_64')
 url='https://www.github.com/systemd/systemd'
 license=('GPL2' 'LGPL2.1')
@@ -83,6 +83,7 @@ build() {
         -Dtmpfiles=true
         -Dhwdb=true
         -Dblkid=true
+        -Dgshadow=true
 
         -Dinstall-udev-standalone=true
         -Dinstall-tmpfiles-standalone=true
@@ -95,16 +96,14 @@ build() {
         -Dlink-boot-shared=false
         -Dman=false
 
-        -Dadm-group=false
-        -Dwheel-group=false
-        -Dgshadow=false
-
         -Ddns-servers=''
         -Dntp-servers=''
         -Defi=false
 
         -Dsysvinit-path=
+        -Ddefault-dnssec=no
 
+        -Dadm-group=false
         -Danalyze=false
         -Dapparmor=false
         -Daudit=false
@@ -133,9 +132,7 @@ build() {
         -Dlibidn=false
         -Dlibidn2=false
         -Dlibiptc=false
-
         -Dlocaled=false
-
         -Dlogind=false
         -Dlz4=false
         -Dmachined=false
@@ -168,6 +165,7 @@ build() {
         -Duserdb=false
         -Dutmp=false
         -Dvconsole=false
+        -Dwheel-group=false
         -Dxdg-autostart=false
         -Dxkbcommon=false
         -Dxz=false
