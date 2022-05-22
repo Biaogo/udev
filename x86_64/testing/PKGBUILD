@@ -8,10 +8,10 @@ _pkgbase=systemd-stable
 pkgbase=udev
 pkgname=('udev' 'libudev' 'esysusers' 'etmpfiles')
 pkgdesc='Userspace device file manager'
-_tag='6cbeb4b82eababbf82ee54c150e95ddfe83aaefa' # git rev-parse v${_tag_name}
-_tag_name=251-rc3
+_tag='e93cff8c9c8ceaee8d19cf2599b84a7683ce4ecd' # git rev-parse v${_tag_name}
+_tag_name=251
 pkgver="${_tag_name/-/}"
-pkgrel=4
+pkgrel=1
 arch=('x86_64')
 url='https://www.github.com/systemd/systemd'
 license=('GPL2' 'LGPL2.1')
@@ -41,8 +41,6 @@ sha512sums=('SKIP'
             'a26003ddcac5a83ec1fec040b36ff46816869028dc79aebb2646f9f2ed090e6358601f911c9d6a04b426c7f3367595e12716e411fca34ffce59d718b067e4e5c')
 
 _backports=(
-    260c0a80ac6829b548653b0cff791c85e9f72a22
-    48139c7c570d8863cb883cf3f08fce0497ff0bd2
 )
 
 _reverts=(
@@ -224,7 +222,6 @@ check() {
         test-libudev
         test-libudev-sym
         test-udev-device-thread
-        udev-test
     )
     meson test -C build --print-errorlogs "${tests[@]}"
 }
