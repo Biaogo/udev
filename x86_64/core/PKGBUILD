@@ -8,10 +8,10 @@ _pkgbase=systemd-stable
 pkgbase=udev
 pkgname=('udev' 'libudev' 'esysusers' 'etmpfiles')
 pkgdesc='Userspace device file manager'
-_tag='20e3fdcb595febff92fe3e89ee33da2c04c5c682' # git rev-parse v${_tag_name}
-_tag_name=250.5
+_tag='e93cff8c9c8ceaee8d19cf2599b84a7683ce4ecd' # git rev-parse v${_tag_name}
+_tag_name=251
 pkgver="${_tag_name/-/}"
-pkgrel=3
+pkgrel=1
 arch=('x86_64')
 url='https://www.github.com/systemd/systemd'
 license=('GPL2' 'LGPL2.1')
@@ -21,19 +21,24 @@ makedepends=('acl' 'libacl.so' 'kmod' 'libkmod.so' 'util-linux' 'libblkid.so'
 options=('strip')
 validpgpkeys=('63CDA1E5D3FC22B998D20DD6327F26951A015CC4'  # Lennart Poettering <lennart@poettering.net>
               'A9EA9081724FFAE0484C35A1A81CEA22BC8C7E2E'  # Luca Boccassi <luca.boccassi@gmail.com>
+              '9A774DB5DB996C154EBBFBFDA0099A18E29326E1'  # Yu Watanabe <watanabe.yu+github@gmail.com>
               '5C251B5FC54EB2F80F407AAAC54CA336CFEB557E') # Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl>
 _commit=29cd296aa4635fe6f7b53bda2f2cb1648bdc0782
-source=("git+https://github.com/systemd/systemd-stable#tag=${_tag}?signed"
-        "git+https://github.com/systemd/systemd#tag=v${_tag_name%.*}?signed"
+source=("git+https://github.com/systemd/systemd-stable#tag=${_tag}" #?signed
+        "git+https://github.com/systemd/systemd#tag=v${_tag_name%.*}" #?signed
         '0001-Use-Arch-Linux-device-access-groups.patch'
         initcpio-{hook,install}-udev
-        "git+https://gitea.artixlinux.org/artix/alpm-hooks.git#commit=$_commit")
+        "git+https://gitea.artixlinux.org/artix/alpm-hooks.git#commit=$_commit"
+        meson-install-tags.patch
+        meson-artix.patch)
 sha512sums=('SKIP'
             'SKIP'
             '10f3b477527ec263cc6465c84d94416e356435930edc9e26844a0fd4f71e87a27fa0f91ce24b43a22cacdd2ead5e760e9d607369bc537a8da8d34021302a89a1'
             '32606b42856b5f3ea7f485143e532671f58986237e14c58ea5ab17383dc39a375cb6c738c8a2db9e4a8c8be88ea44a876d6bbed129cb2f5c9aa3f8228b04d927'
             '38eed28d42ac8f70bc8d1058ace35f137f7f5c972442ee14b98c2146202e0615aa584304edbd59e8608d1b6bec3cb391fc69b25393740f6eabd8fc5ad3bde64f'
-            'SKIP')
+            'SKIP'
+            '856bbb35d97e89307c75c2855389ae1de227badfc3bd561cc20846bd11439810d5f6a969c95d33e14699a2986894d8ab72288733209f984d750ae5f2d02c20dc'
+            'a26003ddcac5a83ec1fec040b36ff46816869028dc79aebb2646f9f2ed090e6358601f911c9d6a04b426c7f3367595e12716e411fca34ffce59d718b067e4e5c')
 
 _backports=(
 )
@@ -56,6 +61,8 @@ prepare() {
         git log --oneline -1 "${_c}"
         git revert -n "${_c}"
     done
+    patch -Np1 -i ../meson-install-tags.patch
+    patch -Np1 -i ../meson-artix.patch
 
     # Replace cdrom/dialout/tape groups with optical/uucp/storage
     patch -Np1 -i ../0001-Use-Arch-Linux-device-access-groups.patch
@@ -66,28 +73,34 @@ build() {
 
     _meson_options+=(
         -Dversion-tag="${_tag_name/-/\~}-${pkgrel}-artix"
+        -Dshared-lib-tag="${pkgver}-${pkgrel}"
         -Dmode=release
 
         -Dstandalone-binaries=true
         -Dsysusers=true
         -Dtmpfiles=true
-
-        -Dadm-group=false
-        -Dwheel-group=false
-        -Dgshadow=false
         -Dhwdb=true
         -Dblkid=true
-        -Dlink-udev-shared=false
+        -Dgshadow=true
 
-        -Dman=false
+        -Dinstall-sysconfdir-standalone=true
+        -Ddefault-udevd-symlink='udevd'
+        -Ddefault-udevd-dir='/usr/bin'
+
         -Dtests=true
+
+        -Dlink-udev-shared=false
+        -Dlink-boot-shared=false
+        -Dman=false
 
         -Ddns-servers=''
         -Dntp-servers=''
         -Defi=false
 
         -Dsysvinit-path=
+        -Ddefault-dnssec=no
 
+        -Dadm-group=false
         -Danalyze=false
         -Dapparmor=false
         -Daudit=false
@@ -149,17 +162,16 @@ build() {
         -Duserdb=false
         -Dutmp=false
         -Dvconsole=false
+        -Dwheel-group=false
         -Dxdg-autostart=false
         -Dxkbcommon=false
         -Dxz=false
         -Dzlib=false
         -Dzstd=false
     )
-
     artix-meson "$_pkgbase" build "${_meson_options[@]}"
 
     local _targets=()
-
     _targets+=(
         udev:shared_library
         src/libudev/libudev.pc
@@ -167,7 +179,7 @@ build() {
         systemd-hwdb
         src/udev/{ata_id,cdrom_id,fido_id,mtd_probe,dmi_memory_id,scsi_id,v4l_id}
         src/udev/udev.pc
-        rules.d/{50-udev-default.rules,64-btrfs.rules}
+        rules.d/{50-udev-default,64-btrfs}.rules
         hwdb.d/60-autosuspend-chromiumos.hwdb
         man/{libudev.3,udev.conf.5,hwdb.7,udev.7,udevadm.8}
 
@@ -176,6 +188,7 @@ build() {
         tmpfiles.d/{etc,static-nodes-permissions,var}.conf
         man/{sysusers,tmpfiles}.d.5
         man/systemd-{sysusers,tmpfiles}.8
+        factory/templates/locale.conf
 
         systemd-detect-virt
         test/sys
@@ -189,7 +202,6 @@ build() {
         systemd-runtest.env
         test-tmpfiles
     )
-
     meson compile -C build "${_targets[@]}"
 }
 
@@ -214,44 +226,38 @@ check() {
     meson test -C build --print-errorlogs "${tests[@]}"
 }
 
+_inst_doc(){
+    install -d "${pkgdir}"/usr/share/doc/"${pkgname}"
+    install -vm644 "$_pkgbase"/LICENSE.* "${pkgdir}"/usr/share/doc/"${pkgname}"
+}
+
+_inst_man_udev() {
+    local x="$1" y=${1##*.}
+    install -d "${pkgdir}"/usr/share/man/man"$y"
+    install -vm644 build/man/"$x" "${pkgdir}"/usr/share/man/man"$y"
+}
+
+_inst_man_utils() {
+    local u="$1"
+    install -d "${pkgdir}"/usr/share/man/man{5,8}
+    install -vm644 build/man/"$u".d.5 "${pkgdir}"/usr/share/man/man5
+    install -vm644 build/man/systemd-"$u".8 "${pkgdir}"/usr/share/man/man8/"$u".8
+}
+
 package_udev() {
     pkgdesc='Userspace device file manager'
     depends=('acl' 'libacl.so' 'kmod' 'libkmod.so'
             'util-linux' 'libblkid.so' 'libudev' 'hwdata' 'kbd')
     provides=("udev=$pkgver")
 
-    install -vd "${pkgdir}"/etc/udev/{hwdb,rules}.d
-    install -vm644 "$_pkgbase"/src/udev/udev.conf "${pkgdir}"/etc/udev
+    meson install -C build --destdir="$pkgdir" --no-rebuild --tags udev,udev-devel
 
-    install -vd "${pkgdir}"/usr/bin
-    install -vm755 build/udevadm "${pkgdir}"/usr/bin/udevadm
-    install -vm755  build/systemd-hwdb  "${pkgdir}"/usr/bin/udev-hwdb
-    ln -sfv udevadm "${pkgdir}"/usr/bin/udevd
+    mv -v  "${pkgdir}"/usr/bin/systemd-hwdb "${pkgdir}"/usr/bin/udev-hwdb
 
-    install -vd "${pkgdir}"/usr/{share,lib}/pkgconfig
-    install -vm644 build/src/libudev/libudev.pc "${pkgdir}"/usr/lib/pkgconfig
-    install -vm644 build/src/udev/udev.pc "${pkgdir}"/usr/share/pkgconfig
-
-    install -vd "${pkgdir}"/usr/lib/udev
-    install -vm755 build/src/udev/{*_id,mtd_probe} "${pkgdir}"/usr/lib/udev
-
-    install -vd "${pkgdir}"/usr/lib/udev/{hwdb,rules}.d
-    install -vm644 build/hwdb.d/* "${pkgdir}"/usr/lib/udev/hwdb.d
-    install -vm644 "$_pkgbase"/hwdb.d/{*.hwdb,README} "${pkgdir}"/usr/lib/udev/hwdb.d
-    install -vm644 build/rules.d/* "${pkgdir}"/usr/lib/udev/rules.d
-    install -vm644 "$_pkgbase"/rules.d/{*.rules,README} "${pkgdir}"/usr/lib/udev/rules.d
-    rm -vf "${pkgdir}"/usr/lib/udev/rules.d/99-systemd.rules
-
-    install -vd "${pkgdir}"/usr/include
-    install -vm644 "$_pkgbase"/src/libudev/libudev.h "${pkgdir}"/usr/include
-
-    install -vd "${pkgdir}"/usr/share/{doc/"${pkgname}",man/man{3,5,7,8}}
-    install -vm644 build/man/libudev.3 "${pkgdir}"/usr/share/man/man3
-    install -vm644 build/man/udev.conf.5 "${pkgdir}"/usr/share/man/man5
-    install -vm644 build/man/udev.7 "${pkgdir}"/usr/share/man/man7
-    install -vm644 build/man/udevadm.8 "${pkgdir}"/usr/share/man/man8
-
-    install -vm644 "$_pkgbase"/LICENSE.* "${pkgdir}"/usr/share/doc/"${pkgname}"
+    for m in libudev.3 udev.conf.5 udev.7 udevadm.8; do
+        _inst_man_udev "$m"
+    done
+    _inst_doc
 
     # initcpio
     install -vD -m0644 initcpio-install-udev "${pkgdir}"/usr/lib/initcpio/install/udev
@@ -266,10 +272,7 @@ package_libudev() {
     depends=('gcc-libs')
     provides=('libudev.so')
 
-    install -vd "${pkgdir}"/usr/lib
-    install -vm644 build/$(readlink build/libudev.so.1) "${pkgdir}"/usr/lib
-    ln -sfv $(readlink build/libudev.so.1) "${pkgdir}"/usr/lib/libudev.so.1
-    ln -sfv libudev.so.1 "${pkgdir}"/usr/lib/libudev.so
+    meson install -C build --destdir="$pkgdir" --no-rebuild --tags libudev
 }
 
 package_esysusers() {
@@ -277,17 +280,12 @@ package_esysusers() {
     groups=('base-devel')
     depends=('gcc-libs' 'libxcrypt')
 
-    install -vd "${pkgdir}"/usr/bin
-    install -vm755 build/systemd-sysusers.standalone "${pkgdir}"/usr/bin/sysusers
+    meson install -C build --destdir="$pkgdir" --no-rebuild --tags sysusers
 
-    install -vd "${pkgdir}"/usr/lib/sysusers.d
-    install -vm644 build/sysusers.d/basic.conf "${pkgdir}"/usr/lib/sysusers.d
-    install -vm644 "$_pkgbase"/sysusers.d/README "${pkgdir}"/usr/lib/sysusers.d
+    mv -v  "${pkgdir}"/usr/bin/systemd-sysusers.standalone "${pkgdir}"/usr/bin/sysusers
 
-    install -vd "${pkgdir}"/usr/share/{doc/"${pkgname}",man/man{5,8}}
-    install -vm644 build/man/sysusers.d.5 "${pkgdir}"/usr/share/man/man5
-    install -vm644 build/man/systemd-sysusers.8 "${pkgdir}"/usr/share/man/man8/sysusers.8
-    install -vm644 "$_pkgbase"/LICENSE.* "${pkgdir}"/usr/share/doc/"${pkgname}"
+    _inst_man_utils sysusers
+    _inst_doc
 
     # pacman hooks
     make -C alpm-hooks DESTDIR="${pkgdir}" install_sysusers
@@ -298,17 +296,12 @@ package_etmpfiles() {
     groups=('base-devel')
     depends=('acl' 'libacl.so' 'libcap' 'libcap.so')
 
-    install -vd "${pkgdir}"/usr/bin
-    install -vm755 build/systemd-tmpfiles.standalone "${pkgdir}"/usr/bin/tmpfiles
+    meson install -C build --destdir="$pkgdir" --no-rebuild --tags tmpfiles
 
-    install -vd "${pkgdir}"/{etc,usr/lib}/tmpfiles.d
-    install -vm644 build/tmpfiles.d/* "${pkgdir}"/usr/lib/tmpfiles.d
-    install -vm644 "$_pkgbase"/tmpfiles.d/{{tmp,home,x11}.conf,README} "${pkgdir}"/usr/lib/tmpfiles.d
+    mv -v "${pkgdir}"/usr/bin/systemd-tmpfiles.standalone "${pkgdir}"/usr/bin/tmpfiles
 
-    install -vd "${pkgdir}"/usr/share/{doc/"${pkgname}",man/man{5,8}}
-    install -vm644 build/man/tmpfiles.d.5 "${pkgdir}"/usr/share/man/man5
-    install -vm644 build/man/systemd-tmpfiles.8 "${pkgdir}"/usr/share/man/man8/tmpfiles.8
-    install -vm644 "$_pkgbase"/LICENSE.* "${pkgdir}"/usr/share/doc/"${pkgname}"
+    _inst_man_utils tmpfiles
+    _inst_doc
 
     # pacman hooks
     make -C alpm-hooks DESTDIR="${pkgdir}" install_tmpfiles
