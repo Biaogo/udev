@@ -1,7 +1,7 @@
 ---
 pkgbase:
   name: udev
-  version: 253.6-1
+  version: 253.8-1
   arch:
     - x86_64
   pkgname:
@@ -10,11 +10,11 @@ pkgbase:
     - esysusers
     - etmpfiles
 actions:
-  addRepo: null
+  addRepo: system-gremlins
   removeRepo: null
-  triggersBuild: false
+  triggersBuild: true
   triggersRebuild: false
-  triggersRepoAdd: false
+  triggersRepoAdd: true
   triggersRepoRemove: false
   triggersNoCheck: false
 repos:
@@ -22,8 +22,12 @@ repos:
     version: null
     packages: []
   system-gremlins:
-    version: null
-    packages: []
+    version: 253.8-1
+    packages:
+      - udev-253.8-1-x86_64.pkg.tar.zst
+      - libudev-253.8-1-x86_64.pkg.tar.zst
+      - esysusers-253.8-1-x86_64.pkg.tar.zst
+      - etmpfiles-253.8-1-x86_64.pkg.tar.zst
   system:
     version: 253.6-1
     packages:
