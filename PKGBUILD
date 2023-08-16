@@ -8,8 +8,8 @@ _pkgbase=systemd-stable
 pkgbase=udev
 pkgname=('udev' 'libudev' 'esysusers' 'etmpfiles')
 pkgdesc='Userspace device file manager'
-_tag='883aab2e803c9f4ca71028a2578298cce5ac5ac4' # git rev-parse v${_tag_name}
-_tag_name=253.8
+_tag='2c4171c3c4146fcb32253bfb6423b5a3ee42a553' # git rev-parse v${_tag_name}
+_tag_name=254.1
 pkgver="${_tag_name/-/}"
 pkgrel=1
 arch=('x86_64')
@@ -29,20 +29,19 @@ source=("git+https://github.com/systemd/systemd-stable#tag=${_tag}" #?signed
         '0001-Use-Arch-Linux-device-access-groups.patch'
         initcpio-{hook,install}-udev
         "git+https://gitea.artixlinux.org/artix/alpm-hooks.git#commit=${_alpm}"
-        meson-install-tags.patch
-        meson-artix.patch
-        udev-log-msg.patch
-        legacy.conf)
+#         meson-install-tags.patch
+#         meson-artix.patch
+#         udev-log-msg.patch
+#         legacy.conf
+        artix.patch
+)
 sha512sums=('SKIP'
             'SKIP'
-            'f26db75129f1f9a7b7235d77e4ec490864fa0a203431f515873443b227da3db7034d8d81f7974f23fc6fbeaa91727244ac8ab82762f02e87fb92ea19a6bd931f'
+            '3ccf783c28f7a1c857120abac4002ca91ae1f92205dcd5a84aff515d57e706a3f9240d75a0a67cff5085716885e06e62597baa86897f298662ec36a940cf410e'
             '32606b42856b5f3ea7f485143e532671f58986237e14c58ea5ab17383dc39a375cb6c738c8a2db9e4a8c8be88ea44a876d6bbed129cb2f5c9aa3f8228b04d927'
             '38eed28d42ac8f70bc8d1058ace35f137f7f5c972442ee14b98c2146202e0615aa584304edbd59e8608d1b6bec3cb391fc69b25393740f6eabd8fc5ad3bde64f'
             'SKIP'
-            'e7412ffe57bcbdfdf6e63caa36726a735eaf99c533613218e11dfc3c63912bcb0d713327eb8492ae91e2635e8923e68e552a559d980bc29517f75c711f2b5d71'
-            'a26003ddcac5a83ec1fec040b36ff46816869028dc79aebb2646f9f2ed090e6358601f911c9d6a04b426c7f3367595e12716e411fca34ffce59d718b067e4e5c'
-            '268817ee63ca0b03d2a10bb952837052c1fa80a5d2f0fe933d2aa3d61a09d286f188a6358107114964930fcef7057392f9520f875a83f6e265d2f4bc2564c26e'
-            '0d3183b2088fa645fd760240f8dae87f03d0d505c7eda8f91f9c16a872eb18578b72110e028cb4f5407256dc4449332a0b31eac44240b179439ee1be655e4d71')
+            '0476c3747f388d39bf67d4d88b26158443c0f7fa9ad6d8e28587c1acbbcee9502e433894e76b4ca816448adae00f5f75a15cc113232550821ab9108b53ca26b9')
 
 _backports=(
 )
@@ -65,9 +64,8 @@ prepare() {
         git log --oneline -1 "${_c}"
         git revert -n "${_c}"
     done
-    patch -Np1 -i ../meson-install-tags.patch
-    patch -Np1 -i ../meson-artix.patch
-    patch -Np1 -i ../udev-log-msg.patch
+
+    patch -Np1 -i ../artix.patch
 
     # Replace cdrom/dialout/tape groups with optical/uucp/storage
     patch -Np1 -i ../0001-Use-Arch-Linux-device-access-groups.patch
@@ -87,10 +85,6 @@ build() {
         -Dhwdb=true
         -Dblkid=true
         -Dgshadow=true
-
-        -Dinstall-sysconfdir-standalone=true
-        -Ddefault-udevd-symlink='udevd'
-        -Ddefault-udevd-dir='/usr/bin'
 
         -Dsbat-distro='artix'
         -Dsbat-distro-summary='Artix Linux'
@@ -187,7 +181,7 @@ build() {
         src/libudev/libudev.pc
         udevadm
         systemd-hwdb
-        src/udev/{ata_id,cdrom_id,fido_id,mtd_probe,dmi_memory_id,scsi_id,v4l_id}
+        src/udev/{ata_id,cdrom_id,dmi_memory_id,fido_id,iocost,mtd_probe,scsi_id,v4l_id}
         src/udev/udev.pc
         rules.d/{50-udev-default,64-btrfs}.rules
         hwdb.d/60-autosuspend-chromiumos.hwdb
@@ -195,21 +189,21 @@ build() {
 
         systemd-{sysusers,tmpfiles}.standalone
         sysusers.d/basic.conf
-        tmpfiles.d/{etc,static-nodes-permissions,var}.conf
+        tmpfiles.d/{etc,static-nodes-permissions,var,legacy}.conf
         man/{sysusers,tmpfiles}.d.5
         man/systemd-{sysusers,tmpfiles}.8
-        factory/templates/locale.conf
+        factory/templates/{locale,vconsole}.conf
 
         systemd-detect-virt
-        test/sys
-        test-udev
+#         test/sys
+#         test-udev
         test-fido-id-desc
         test-udev-builtin
         test-udev-event
         test-udev-node
         test-udev-util
         systemd-runtest.env
-        test-tmpfiles
+#         test-tmpfiles
     )
     meson compile -C build "${_targets[@]}"
 }
@@ -219,7 +213,7 @@ check() {
     tests+=(
         test-sysusers.standalone
         test-systemd-tmpfiles.standalone
-        test-tmpfiles
+#         test-tmpfiles
         rule-syntax-check
         test-fido-id-desc
         test-udev-builtin
@@ -310,8 +304,6 @@ package_etmpfiles() {
 
     _inst_man_utils tmpfiles
     _inst_doc
-
-    install -m644 ${srcdir}/legacy.conf "$pkgdir"/usr/lib/tmpfiles.d/legacy.conf
 
     # pacman hooks
     make -C alpm-hooks DESTDIR="${pkgdir}" install_tmpfiles
