@@ -37,7 +37,7 @@ source=("git+https://github.com/systemd/systemd-stable#tag=${_tag}" #?signed
 )
 sha512sums=('SKIP'
             'SKIP'
-            '3ccf783c28f7a1c857120abac4002ca91ae1f92205dcd5a84aff515d57e706a3f9240d75a0a67cff5085716885e06e62597baa86897f298662ec36a940cf410e'
+            '18cf05beed4f88f3bfc233ab1f3e6bd1f09cc5e52cfb747b758ebdcfe293aca751df377d63dcc1433ebd968048e16af6538c1aa52d0d7fb327e98df334444d06'
             '32606b42856b5f3ea7f485143e532671f58986237e14c58ea5ab17383dc39a375cb6c738c8a2db9e4a8c8be88ea44a876d6bbed129cb2f5c9aa3f8228b04d927'
             '38eed28d42ac8f70bc8d1058ace35f137f7f5c972442ee14b98c2146202e0615aa584304edbd59e8608d1b6bec3cb391fc69b25393740f6eabd8fc5ad3bde64f'
             'SKIP'

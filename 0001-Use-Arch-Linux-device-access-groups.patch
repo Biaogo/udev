@@ -166,16 +166,3 @@ index 4f2c0d7c43..62e2ae0986 100644
  
  # /run/lock/subsys is used for serializing SysV service execution, and
  # hence without use on SysV-less systems.
-diff --git a/tmpfiles.d/meson.build b/tmpfiles.d/meson.build
-index ca1abbf3fe..25e2b53402 100644
---- a/tmpfiles.d/meson.build
-+++ b/tmpfiles.d/meson.build
-@@ -29,7 +29,7 @@ foreach pair : files
- endforeach
- 
- in_files = [['etc.conf',                      ''],
--            ['legacy.conf',                   'HAVE_SYSV_COMPAT'],
-+            ['legacy.conf',                   ''],
-             ['static-nodes-permissions.conf', ''],
-             ['systemd.conf',                  ''],
-             ['var.conf',                      ''],
