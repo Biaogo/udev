@@ -2,7 +2,7 @@
 
 run_earlyhook() {
     kmod static-nodes --format=tmpfiles --output=/run/tmpfiles.d/kmod.conf
-    tmpfiles --prefix=/dev --create --boot
+    etmpfiles --prefix=/dev --create --boot
     udevd --daemon --resolve-names=never
     udevd_running=1
 }

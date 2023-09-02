@@ -5,13 +5,15 @@
 
 _pkgbase=systemd-stable
 
+_alpm=1.4 # git rev-parse ${_alpm} #83961019292a041e1d2c07389d639065632e3f1f
+
 pkgbase=udev
 pkgname=('udev' 'libudev' 'esysusers' 'etmpfiles')
 pkgdesc='Userspace device file manager'
 _tag='2c4171c3c4146fcb32253bfb6423b5a3ee42a553' # git rev-parse v${_tag_name}
 _tag_name=254.1
 pkgver="${_tag_name/-/}"
-pkgrel=1
+pkgrel=2
 arch=('x86_64')
 url='https://www.github.com/systemd/systemd'
 license=('GPL2' 'LGPL2.1')
@@ -23,25 +25,20 @@ validpgpkeys=('63CDA1E5D3FC22B998D20DD6327F26951A015CC4'  # Lennart Poettering <
               'A9EA9081724FFAE0484C35A1A81CEA22BC8C7E2E'  # Luca Boccassi <luca.boccassi@gmail.com>
               '9A774DB5DB996C154EBBFBFDA0099A18E29326E1'  # Yu Watanabe <watanabe.yu+github@gmail.com>
               '5C251B5FC54EB2F80F407AAAC54CA336CFEB557E') # Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl>
-_alpm=4ace40eddd2db821ff0e410e09e4e99a98dca559
 source=("git+https://github.com/systemd/systemd-stable#tag=${_tag}" #?signed
         "git+https://github.com/systemd/systemd#tag=v${_tag_name%.*}" #?signed
-        '0001-Use-Arch-Linux-device-access-groups.patch'
+        "git+https://gitea.artixlinux.org/artix/alpm-hooks.git#tag=${_alpm}"
         initcpio-{hook,install}-udev
-        "git+https://gitea.artixlinux.org/artix/alpm-hooks.git#commit=${_alpm}"
-#         meson-install-tags.patch
-#         meson-artix.patch
-#         udev-log-msg.patch
-#         legacy.conf
-        artix.patch
+        0001-Use-Arch-Linux-device-access-groups.patch
+        0001-artix-standalone-install.patch
 )
 sha512sums=('SKIP'
             'SKIP'
-            '18cf05beed4f88f3bfc233ab1f3e6bd1f09cc5e52cfb747b758ebdcfe293aca751df377d63dcc1433ebd968048e16af6538c1aa52d0d7fb327e98df334444d06'
-            '32606b42856b5f3ea7f485143e532671f58986237e14c58ea5ab17383dc39a375cb6c738c8a2db9e4a8c8be88ea44a876d6bbed129cb2f5c9aa3f8228b04d927'
-            '38eed28d42ac8f70bc8d1058ace35f137f7f5c972442ee14b98c2146202e0615aa584304edbd59e8608d1b6bec3cb391fc69b25393740f6eabd8fc5ad3bde64f'
             'SKIP'
-            '0476c3747f388d39bf67d4d88b26158443c0f7fa9ad6d8e28587c1acbbcee9502e433894e76b4ca816448adae00f5f75a15cc113232550821ab9108b53ca26b9')
+            '5468867509f16e1955242db235aad760672545ab2d7f74d7f5316904494b9218db1dde0d008e789fbfbed8a82b3144f20f2c927f224ca5e9f3a98becd517864f'
+            '285ac182e5666317bef8c91c9559b71325a0bd42352289800e13a8724c883dd0bc903e731eef3f6238e5f261c75c3308886627221fda2d2e4170e5626e9adc1d'
+            'c5845849a8c66cc1192b1f263098b379c983f779c9521771c6dddc5271e75e96672dce4db112895dcd43f129f884353ecbbab4103c704fbd046657f269a324e1'
+            '3d985204cda5faadc21188874127a03d1543072e16c11eca871ea000d273c226ffba3b458d06606fdef4334326bd6fed727fe1d781c763871ff4bdaa8fb42d66')
 
 _backports=(
 )
@@ -65,14 +62,14 @@ prepare() {
         git revert -n "${_c}"
     done
 
-    patch -Np1 -i ../artix.patch
+    patch -Np1 -i ../0001-artix-standalone-install.patch
 
     # Replace cdrom/dialout/tape groups with optical/uucp/storage
     patch -Np1 -i ../0001-Use-Arch-Linux-device-access-groups.patch
 }
 
 build() {
-    local _meson_options=()
+    local _meson_options=() _targets=()
 
     _meson_options+=(
         -Dversion-tag="${_tag_name/-/\~}-${pkgrel}-artix"
@@ -84,7 +81,9 @@ build() {
         -Dtmpfiles=true
         -Dhwdb=true
         -Dblkid=true
-        -Dgshadow=true
+        -Dkmod=true
+
+        -Dgshadow=false
 
         -Dsbat-distro='artix'
         -Dsbat-distro-summary='Artix Linux'
@@ -95,14 +94,22 @@ build() {
 
         -Dlink-udev-shared=false
         -Dlink-boot-shared=false
+
+        -Ddefault-keymap='us'
+
         -Dman=false
+        -Dhtml=false
 
         -Ddns-servers=''
         -Dntp-servers=''
         -Defi=false
 
         -Dsysvinit-path=
+        -Dsysvrcnd-path=
         -Ddefault-dnssec=no
+
+        -Ddefault-llmnr=no
+        -Ddefault-mdns=no
 
         -Dadm-group=false
         -Danalyze=false
@@ -110,6 +117,7 @@ build() {
         -Daudit=false
         -Dbacklight=false
         -Dbinfmt=false
+        -Dbootloader=false
         -Dbzip2=false
         -Dcoredump=false
         -Ddbus=false
@@ -175,19 +183,19 @@ build() {
     )
     artix-meson "$_pkgbase" build "${_meson_options[@]}"
 
-    local _targets=()
     _targets+=(
         udev:shared_library
         src/libudev/libudev.pc
         udevadm
-        systemd-hwdb
+        udev-hwdb
         src/udev/{ata_id,cdrom_id,dmi_memory_id,fido_id,iocost,mtd_probe,scsi_id,v4l_id}
         src/udev/udev.pc
         rules.d/{50-udev-default,64-btrfs}.rules
         hwdb.d/60-autosuspend-chromiumos.hwdb
-        man/{libudev.3,udev.conf.5,hwdb.7,udev.7,udevadm.8}
+        man/{libudev.3,udev.conf.5,hwdb.7,udev.7,udevadm.8,iocost.conf.5,systemd-hwdb.8}
 
-        systemd-{sysusers,tmpfiles}.standalone
+        esysusers
+        etmpfiles
         sysusers.d/basic.conf
         tmpfiles.d/{etc,static-nodes-permissions,var,legacy}.conf
         man/{sysusers,tmpfiles}.d.5
@@ -195,15 +203,16 @@ build() {
         factory/templates/{locale,vconsole}.conf
 
         systemd-detect-virt
-#         test/sys
-#         test-udev
+        systemd-runtest.env
+
         test-fido-id-desc
         test-udev-builtin
         test-udev-event
         test-udev-node
         test-udev-util
-        systemd-runtest.env
-#         test-tmpfiles
+        test-udev-device-thread
+        test-libudev
+        test-libudev-sym
     )
     meson compile -C build "${_targets[@]}"
 }
@@ -211,55 +220,44 @@ build() {
 check() {
     local tests=()
     tests+=(
-        test-sysusers.standalone
-        test-systemd-tmpfiles.standalone
-#         test-tmpfiles
         rule-syntax-check
         test-fido-id-desc
         test-udev-builtin
         test-udev-event
         test-udev-node
         test-udev-util
-#         udev-test
+        test-udev-device-thread
         test-libudev
         test-libudev-sym
-        test-udev-device-thread
+
+        test-sysusers.standalone
+        test-systemd-tmpfiles.standalone
     )
     meson test -C build --print-errorlogs "${tests[@]}"
 }
 
-_inst_doc(){
-    install -d "${pkgdir}"/usr/share/doc/"${pkgname}"
-    install -vm644 "$_pkgbase"/LICENSE.* "${pkgdir}"/usr/share/doc/"${pkgname}"
-}
-
-_inst_man_udev() {
-    local x="$1" y=${1##*.}
+_inst_man() {
+    local x="$1" y=${1##*.} man
     install -d "${pkgdir}"/usr/share/man/man"$y"
-    install -vm644 build/man/"$x" "${pkgdir}"/usr/share/man/man"$y"
-}
-
-_inst_man_utils() {
-    local u="$1"
-    install -d "${pkgdir}"/usr/share/man/man{5,8}
-    install -vm644 build/man/"$u".d.5 "${pkgdir}"/usr/share/man/man5
-    install -vm644 build/man/systemd-"$u".8 "${pkgdir}"/usr/share/man/man8/"$u".8
+    case "$x" in
+        *sysusers*|*tmpfiles*) man=${x/systemd-/e} ;;
+        *) man=${x/systemd/udev} ;;
+    esac
+    install -vm644 build/man/"$x" "${pkgdir}"/usr/share/man/man"$y/$man"
 }
 
 package_udev() {
     pkgdesc='Userspace device file manager'
-    depends=('glibc' 'gcc-libs' 'acl' 'libacl.so' 'bash' 'hwdata' 'kbd' 'kmod' 'libkmod.so'
-            'libcap' 'libcap.so' 'libudev' 'util-linux' 'libblkid.so')
+    depends=('acl' 'libacl.so' 'bash' 'gcc-libs' 'glibc' 'hwdata'
+            'kbd' 'kmod' 'libkmod.so' 'libcap' 'libcap.so'
+            'libudev' 'util-linux' 'libblkid.so')
     provides=("udev=$pkgver")
 
     meson install -C build --destdir "$pkgdir" --no-rebuild --tags udev,udev-devel
 
-    mv -v  "${pkgdir}"/usr/bin/systemd-hwdb "${pkgdir}"/usr/bin/udev-hwdb
-
-    for m in udev.conf.5 udev.7 udevadm.8; do
-        _inst_man_udev "$m"
+    for m in udev.conf.5 iocost.conf.5 udev.7 udevadm.8 systemd-hwdb.8; do
+        _inst_man "$m"
     done
-    _inst_doc
 
     # initcpio
     install -vD -m0644 initcpio-install-udev "${pkgdir}"/usr/lib/initcpio/install/udev
@@ -271,24 +269,25 @@ package_udev() {
 
 package_libudev() {
     pkgdesc='udev library for enumerating and introspecting local devices'
-    depends=('gcc-libs' 'glibc' 'libcap' 'libcap.so')
+    depends=('gcc-libs' 'glibc'
+            'libcap' 'libcap.so')
     provides=('libudev.so')
 
     meson install -C build --destdir "$pkgdir" --no-rebuild --tags libudev,libudev-devel
 
-    _inst_man_udev "libudev.3"
+    _inst_man "libudev.3"
 }
 
 package_esysusers() {
     pkgdesc='the sysusers.d binary'
-    depends=('glibc' 'gcc-libs' 'libxcrypt' 'libcrypt.so' 'libcap' 'libcap.so')
+    depends=('gcc-libs' 'glibc'
+            'libcap' 'libcap.so'
+            'libxcrypt' 'libcrypt.so')
 
     meson install -C build --destdir "$pkgdir" --no-rebuild --tags sysusers
 
-    mv -v  "${pkgdir}"/usr/bin/systemd-sysusers.standalone "${pkgdir}"/usr/bin/sysusers
-
-    _inst_man_utils sysusers
-    _inst_doc
+    _inst_man "sysusers.d.5"
+    _inst_man "systemd-sysusers.8"
 
     # pacman hooks
     make -C alpm-hooks DESTDIR="${pkgdir}" install_sysusers
@@ -296,14 +295,14 @@ package_esysusers() {
 
 package_etmpfiles() {
     pkgdesc='the tmpfiles.d binary'
-    depends=('glibc' 'gcc-libs' 'acl' 'libacl.so' 'libcap' 'libcap.so')
+    depends=('acl' 'libacl.so'
+            'gcc-libs' 'glibc'
+            'libcap' 'libcap.so')
 
     meson install -C build --destdir "$pkgdir" --no-rebuild --tags tmpfiles
 
-    mv -v "${pkgdir}"/usr/bin/systemd-tmpfiles.standalone "${pkgdir}"/usr/bin/tmpfiles
-
-    _inst_man_utils tmpfiles
-    _inst_doc
+    _inst_man "tmpfiles.d.5"
+    _inst_man "systemd-tmpfiles.8"
 
     # pacman hooks
     make -C alpm-hooks DESTDIR="${pkgdir}" install_tmpfiles

@@ -5,7 +5,7 @@ build() {
 
     map add_binary \
         '/usr/bin/udevadm' \
-        '/usr/bin/tmpfiles'
+        '/usr/bin/etmpfiles'
 
     map add_udev_rule \
         '50-udev-default.rules' \
