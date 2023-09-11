@@ -10,31 +10,27 @@ pkgbase:
     - esysusers
     - etmpfiles
 actions:
-  addRepo: system-gremlins
-  removeRepo: null
-  triggersBuild: true
+  addRepo: system
+  removeRepo: system-gremlins
+  triggersBuild: false
   triggersRebuild: false
   triggersRepoAdd: true
-  triggersRepoRemove: false
+  triggersRepoRemove: true
   triggersNoCheck: false
 repos:
   system-goblins:
     version: null
     packages: []
   system-gremlins:
+    version: null
+    packages: []
+  system:
     version: 254.3-1
     packages:
       - udev-254.3-1-x86_64.pkg.tar.zst
       - libudev-254.3-1-x86_64.pkg.tar.zst
       - esysusers-254.3-1-x86_64.pkg.tar.zst
       - etmpfiles-254.3-1-x86_64.pkg.tar.zst
-  system:
-    version: 254.2-1
-    packages:
-      - udev-254.2-1-x86_64.pkg.tar.zst
-      - libudev-254.2-1-x86_64.pkg.tar.zst
-      - esysusers-254.2-1-x86_64.pkg.tar.zst
-      - etmpfiles-254.2-1-x86_64.pkg.tar.zst
   world-goblins:
     version: null
     packages: []
