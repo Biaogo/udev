@@ -5,13 +5,13 @@
 
 _pkgbase=systemd-stable
 
-_alpm=1.4 # git rev-parse ${_alpm} #83961019292a041e1d2c07389d639065632e3f1f
+_alpm=1.5 # git rev-parse ${_alpm} #83961019292a041e1d2c07389d639065632e3f1f
 
 pkgbase=udev
 pkgname=('udev' 'libudev' 'esysusers' 'etmpfiles')
 pkgdesc='Userspace device file manager'
-_tag='2d7670ddc4473e18c92b15b4a4522e4f12a59d33' # git rev-parse v${_tag_name}
-_tag_name=254.4
+_tag='42f5ba1e56ddb81c244e0d85f13109acdb14cbee' # git rev-parse v${_tag_name}
+_tag_name=254.5
 pkgver="${_tag_name/-/}"
 pkgrel=1
 arch=('x86_64')
