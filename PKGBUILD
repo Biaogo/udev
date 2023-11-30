@@ -5,13 +5,13 @@
 
 _pkgbase=systemd-stable
 
-_alpm=1.5 # git rev-parse ${_alpm} #83961019292a041e1d2c07389d639065632e3f1f
+_alpm=1.6.2 # git rev-parse ${_alpm} #83961019292a041e1d2c07389d639065632e3f1f
 
 pkgbase=udev
 pkgname=('udev' 'libudev' 'esysusers' 'etmpfiles')
 pkgdesc='Userspace device file manager'
-_tag='42f5ba1e56ddb81c244e0d85f13109acdb14cbee' # git rev-parse v${_tag_name}
-_tag_name=254.5
+_tag='be8b196ed026164f29943d8a1d04dc2d2ae3942a' # git rev-parse v${_tag_name}
+_tag_name=254.7
 pkgver="${_tag_name/-/}"
 pkgrel=1
 arch=('x86_64')
@@ -252,6 +252,8 @@ package_udev() {
             'kbd' 'kmod' 'libkmod.so' 'libcap' 'libcap.so'
             'libudev' 'util-linux' 'libblkid.so')
     provides=("udev=$pkgver")
+    backup=(etc/udev/iocost.conf
+            etc/udev/udev.conf)
 
     meson install -C build --destdir "$pkgdir" --no-rebuild --tags udev,udev-devel
 
