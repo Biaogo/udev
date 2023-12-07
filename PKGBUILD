@@ -5,13 +5,13 @@
 
 _pkgbase=systemd-stable
 
-_alpm=1.6.2 # git rev-parse ${_alpm} #83961019292a041e1d2c07389d639065632e3f1f
+_alpm=1.6.2 # git rev-parse ${_alpm}
 
 pkgbase=udev
 pkgname=('udev' 'libudev' 'esysusers' 'etmpfiles')
 pkgdesc='Userspace device file manager'
-_tag='be8b196ed026164f29943d8a1d04dc2d2ae3942a' # git rev-parse v${_tag_name}
-_tag_name=254.7
+_tag='0966fe6734417ce07d5eb82a245fdec3789714da' # git rev-parse v${_tag_name}
+_tag_name=255
 pkgver="${_tag_name/-/}"
 pkgrel=1
 arch=('x86_64')
@@ -38,7 +38,7 @@ sha512sums=('SKIP'
             '5468867509f16e1955242db235aad760672545ab2d7f74d7f5316904494b9218db1dde0d008e789fbfbed8a82b3144f20f2c927f224ca5e9f3a98becd517864f'
             '285ac182e5666317bef8c91c9559b71325a0bd42352289800e13a8724c883dd0bc903e731eef3f6238e5f261c75c3308886627221fda2d2e4170e5626e9adc1d'
             'c5845849a8c66cc1192b1f263098b379c983f779c9521771c6dddc5271e75e96672dce4db112895dcd43f129f884353ecbbab4103c704fbd046657f269a324e1'
-            '3d985204cda5faadc21188874127a03d1543072e16c11eca871ea000d273c226ffba3b458d06606fdef4334326bd6fed727fe1d781c763871ff4bdaa8fb42d66')
+            '1cb669d2f0de5b0ac9dafe1503edfa62be23d4cc3efebf5897320a7cadc3f674effdc9f8d50e27dbefc9385a13282c3bdd84c718d321f5ac2b116f7026f5202d')
 
 _backports=(
 )
@@ -62,10 +62,10 @@ prepare() {
         git revert -n "${_c}"
     done
 
-    patch -Np1 -i ../0001-artix-standalone-install.patch
-
     # Replace cdrom/dialout/tape groups with optical/uucp/storage
     patch -Np1 -i ../0001-Use-Arch-Linux-device-access-groups.patch
+
+    patch -Np1 -i ../0001-artix-standalone-install.patch
 }
 
 build() {
@@ -79,9 +79,12 @@ build() {
         -Dstandalone-binaries=true
         -Dsysusers=true
         -Dtmpfiles=true
+
         -Dhwdb=true
-        -Dblkid=true
-        -Dkmod=true
+
+        -Dblkid=enabled
+
+        -Dkmod=enabled
 
         -Dgshadow=false
 
@@ -93,12 +96,13 @@ build() {
         -Dtests=true
 
         -Dlink-udev-shared=false
-        -Dlink-boot-shared=false
+        #-Dlink-boot-shared=false
 
         -Ddefault-keymap='us'
 
-        -Dman=false
-        -Dhtml=false
+        -Dman=enabled
+
+        -Dhtml=disabled
 
         -Ddns-servers=''
         -Dntp-servers=''
@@ -113,20 +117,21 @@ build() {
 
         -Dadm-group=false
         -Danalyze=false
-        -Dapparmor=false
-        -Daudit=false
+
+        -Dapparmor=disabled
+        -Daudit=disabled
         -Dbacklight=false
         -Dbinfmt=false
-        -Dbootloader=false
-        -Dbzip2=false
+        -Dbootloader=disabled
+        -Dbzip2=disabled
         -Dcoredump=false
-        -Ddbus=false
-        -Delfutils=false
+        -Ddbus=disabled
+        -Delfutils=disabled
         -Denvironment-d=false
-        -Dfdisk=false
-        -Dgcrypt=false
-        -Dglib=false
-        -Dgnutls=false
+        -Dfdisk=disabled
+        -Dgcrypt=disabled
+        -Dglib=disabled
+        -Dgnutls=disabled
         -Dhibernate=false
         -Dhostnamed=false
         -Didn=false
@@ -135,63 +140,78 @@ build() {
         -Dfirstboot=false
         -Dkernel-install=false
         -Dldconfig=false
-        -Dlibcryptsetup=false
-        -Dlibcurl=false
-        -Dlibfido2=false
-        -Dlibidn=false
-        -Dlibidn2=false
-        -Dlibiptc=false
+        -Dlibcryptsetup=disabled
+        -Dlibcurl=disabled
+        -Dlibfido2=disabled
+        -Dlibidn=disabled
+        -Dlibidn2=disabled
+        -Dlibiptc=disabled
         -Dlocaled=false
         -Dlogind=false
-        -Dlz4=false
+        -Dlz4=disabled
         -Dmachined=false
-        -Dmicrohttpd=false
+        -Dmicrohttpd=disabled
         -Dnetworkd=false
         -Dnscd=false
         -Dnss-myhostname=false
-        -Dnss-resolve=false
+        -Dnss-resolve=disabled
         -Dnss-systemd=false
         -Doomd=false
-        -Dopenssl=false
-        -Dp11kit=false
-        -Dpam=false
-        -Dpcre2=false
-        -Dpolkit=false
+        -Dopenssl=disabled
+        -Dp11kit=disabled
+        -Dpam=disabled
+        -Dpcre2=disabled
+        -Dpolkit=disabled
         -Dportabled=false
         -Dpstore=false
-        -Dpwquality=false
+        -Dpwquality=disabled
         -Drandomseed=false
         -Dresolve=false
         -Drfkill=false
-        -Dseccomp=false
+        -Dseccomp=disabled
         -Dsmack=false
         -Dsysext=false
         -Dtimedated=false
         -Dtimesyncd=false
         -Dtpm=false
-        -Dqrencode=false
+        -Dqrencode=disabled
         -Dquotacheck=false
         -Duserdb=false
         -Dutmp=false
         -Dvconsole=false
         -Dwheel-group=false
         -Dxdg-autostart=false
-        -Dxkbcommon=false
-        -Dxz=false
-        -Dzlib=false
-        -Dzstd=false
+        -Dxkbcommon=disabled
+        -Dxz=disabled
+        -Dzlib=disabled
+        -Dzstd=disabled
+
+        -Dbpf-framework=disabled
+        -Dpasswdqc=disabled
+        -Dselinux=disabled
+        -Dxenctrl=disabled
+        -Dlibcryptsetup-plugins=disabled
+        -Drepart=false
+        -Dsysupdate=false
+        -Dimportd=false
+        -Dhomed=false
+        -Dremote=false
+        -Dnss-mymachines=false
+        -Dukify=false
+        -Dtpm2=false
     )
     artix-meson "$_pkgbase" build "${_meson_options[@]}"
 
     _targets+=(
         udev:shared_library
         src/libudev/libudev.pc
+
         udevadm
+        {ata_id,cdrom_id,dmi_memory_id,fido_id,iocost,mtd_probe,scsi_id,v4l_id}
+        rules.d/{50-udev-default,60-persistent-storage,64-btrfs}.rules
         udev-hwdb
-        src/udev/{ata_id,cdrom_id,dmi_memory_id,fido_id,iocost,mtd_probe,scsi_id,v4l_id}
-        src/udev/udev.pc
-        rules.d/{50-udev-default,64-btrfs}.rules
         hwdb.d/60-autosuspend-chromiumos.hwdb
+        src/udev/udev.pc
         man/{libudev.3,udev.conf.5,hwdb.7,udev.7,udevadm.8,iocost.conf.5,systemd-hwdb.8}
 
         esysusers
@@ -205,35 +225,59 @@ build() {
         systemd-detect-virt
         systemd-runtest.env
 
-        test-fido-id-desc
-        test-udev-builtin
-        test-udev-event
-        test-udev-node
-        test-udev-util
-        test-udev-device-thread
         test-libudev
         test-libudev-sym
+
+        test-udev-builtin
+        test-udev-device-thread
+        test-udev-format
+        test-udev-manager
+        test-udev-node
+        test-udev-rules
+        test-udev-spawn
+        #test-udev-util
+
+        test-fido-id-desc
+        test-link-config-tables
     )
     meson compile -C build "${_targets[@]}"
 }
 
 check() {
-    local tests=()
-    tests+=(
-        rule-syntax-check
-        test-fido-id-desc
-        test-udev-builtin
-        test-udev-event
-        test-udev-node
-        test-udev-util
-        test-udev-device-thread
+    local _tests=()
+    _tests+=(
+        udev-rules-check
+        hwdb-test
+
         test-libudev
         test-libudev-sym
 
-        test-sysusers.standalone
+        test-udev
+        test-udev-builtin
+        test-udev-device-thread
+        test-udev-format
+        test-udev-manager
+        test-udev-node
+        test-udev-rules
+        test-udev-spawn
+        #test-udev-util
+
+        test-fido-id-desc
+        test-link-config-tables
+
+        dmidecode_HP-Z600
+        dmidecode_Lenovo-ThinkPad-X280
+        dmidecode_Lenovo-Thinkcentre-m720s
+
+
         test-systemd-tmpfiles.standalone
+        test-sysusers.standalone
+
+        #test-tmpfile-util
+        #test-offline-passwd
     )
-    meson test -C build --print-errorlogs "${tests[@]}"
+
+    meson test -C build --print-errorlogs "${_tests[@]}"
 }
 
 _inst_man() {
@@ -286,7 +330,7 @@ package_esysusers() {
             'libcap' 'libcap.so'
             'libxcrypt' 'libcrypt.so')
 
-    meson install -C build --destdir "$pkgdir" --no-rebuild --tags sysusers
+    meson install -C build --destdir "$pkgdir" --no-rebuild --tags esysusers
 
     _inst_man "sysusers.d.5"
     _inst_man "systemd-sysusers.8"
@@ -301,7 +345,7 @@ package_etmpfiles() {
             'gcc-libs' 'glibc'
             'libcap' 'libcap.so')
 
-    meson install -C build --destdir "$pkgdir" --no-rebuild --tags tmpfiles
+    meson install -C build --destdir "$pkgdir" --no-rebuild --tags etmpfiles
 
     _inst_man "tmpfiles.d.5"
     _inst_man "systemd-tmpfiles.8"
