@@ -10,8 +10,8 @@ _alpm=1.6.2 # git rev-parse ${_alpm}
 pkgbase=udev
 pkgname=('udev' 'libudev' 'esysusers' 'etmpfiles')
 pkgdesc='Userspace device file manager'
-_tag='0966fe6734417ce07d5eb82a245fdec3789714da' # git rev-parse v${_tag_name}
-_tag_name=255
+_tag='be88ad03366b8aa059bb72b39a270128ba62b428' # git rev-parse v${_tag_name}
+_tag_name=255.2
 pkgver="${_tag_name/-/}"
 pkgrel=1
 arch=('x86_64')
@@ -96,7 +96,6 @@ build() {
         -Dtests=true
 
         -Dlink-udev-shared=false
-        #-Dlink-boot-shared=false
 
         -Ddefault-keymap='us'
 
@@ -170,6 +169,7 @@ build() {
         -Drfkill=false
         -Dseccomp=disabled
         -Dsmack=false
+        -Dstoragetm=false
         -Dsysext=false
         -Dtimedated=false
         -Dtimesyncd=false
@@ -179,6 +179,7 @@ build() {
         -Duserdb=false
         -Dutmp=false
         -Dvconsole=false
+        -Dvmspawn=disabled
         -Dwheel-group=false
         -Dxdg-autostart=false
         -Dxkbcommon=disabled
@@ -191,15 +192,20 @@ build() {
         -Dselinux=disabled
         -Dxenctrl=disabled
         -Dlibcryptsetup-plugins=disabled
-        -Drepart=false
-        -Dsysupdate=false
-        -Dimportd=false
-        -Dhomed=false
-        -Dremote=false
-        -Dnss-mymachines=false
-        -Dukify=false
-        -Dtpm2=false
+        -Drepart=disabled
+        -Dsysupdate=disabled
+        -Dimportd=disabled
+        -Dhomed=disabled
+        -Dremote=disabled
+        -Dnss-mymachines=disabled
+        -Dukify=disabled
+        -Dtpm2=disabled
     )
+
+    export CFLAGS="${CFLAGS/_FORTIFY_SOURCE=3/_FORTIFY_SOURCE=2}"
+    export CXXFLAGS="${CXXFLAGS/_FORTIFY_SOURCE=3/_FORTIFY_SOURCE=2}"
+
+
     artix-meson "$_pkgbase" build "${_meson_options[@]}"
 
     _targets+=(
