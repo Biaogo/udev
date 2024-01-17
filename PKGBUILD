@@ -13,7 +13,7 @@ pkgdesc='Userspace device file manager'
 _tag='be88ad03366b8aa059bb72b39a270128ba62b428' # git rev-parse v${_tag_name}
 _tag_name=255.2
 pkgver="${_tag_name/-/}"
-pkgrel=1
+pkgrel=2
 arch=('x86_64')
 url='https://www.github.com/systemd/systemd'
 license=('GPL2' 'LGPL2.1')
@@ -38,7 +38,7 @@ sha512sums=('SKIP'
             '5468867509f16e1955242db235aad760672545ab2d7f74d7f5316904494b9218db1dde0d008e789fbfbed8a82b3144f20f2c927f224ca5e9f3a98becd517864f'
             '285ac182e5666317bef8c91c9559b71325a0bd42352289800e13a8724c883dd0bc903e731eef3f6238e5f261c75c3308886627221fda2d2e4170e5626e9adc1d'
             'c5845849a8c66cc1192b1f263098b379c983f779c9521771c6dddc5271e75e96672dce4db112895dcd43f129f884353ecbbab4103c704fbd046657f269a324e1'
-            '1cb669d2f0de5b0ac9dafe1503edfa62be23d4cc3efebf5897320a7cadc3f674effdc9f8d50e27dbefc9385a13282c3bdd84c718d321f5ac2b116f7026f5202d')
+            '23da52e40c71668494d92095b4028a8ad3be625315a256843341bdcb07455531e644fe6930921bad3aebae79b40369cce0261ac09a2a1f5f2543dd135abfb7c3')
 
 _backports=(
 )
