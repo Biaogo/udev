@@ -10,17 +10,17 @@ _alpm=1.6.2 # git rev-parse ${_alpm}
 pkgbase=udev
 pkgname=('udev' 'libudev' 'esysusers' 'etmpfiles')
 pkgdesc='Userspace device file manager'
-_tag='8cf1da1e9172ba04d90a483a63118873343ea656' # git rev-parse v${_tag_name}
-_tag_name=255.3
-pkgver="${_tag_name/-/}"
+_tag='4003dd6754e3446691402d3cc389fbfd4faccc90' # git rev-parse v${_tag_name}
+_tag_name=255.4
+pkgver="${_tag_name/~/}"
 pkgrel=1
 arch=('x86_64')
 url='https://www.github.com/systemd/systemd'
-license=('GPL2' 'LGPL2.1')
-makedepends=('acl' 'libacl.so' 'gperf' 'hwdata' 'kbd' 'kmod' 'libkmod.so'
-            'libcap' 'libcap.so' 'libxcrypt' 'libcrypt.so' 'util-linux' 'libblkid.so'
-            'docbook-xsl' 'git' 'intltool' 'meson' 'python-jinja' 'rsync')
-options=('strip')
+license=('GPL-2.0-or-later' 'LGPL-2.1-or-later')
+makedepends=('acl' 'gperf' 'hwdata' 'kbd' 'kmod'
+            'libcap' 'libxcrypt' 'util-linux' 'docbook-xsl'
+            'git' 'intltool' 'meson' 'python-jinja' 'rsync'
+            'bash-completion')
 validpgpkeys=('63CDA1E5D3FC22B998D20DD6327F26951A015CC4'  # Lennart Poettering <lennart@poettering.net>
               'A9EA9081724FFAE0484C35A1A81CEA22BC8C7E2E'  # Luca Boccassi <luca.boccassi@gmail.com>
               '9A774DB5DB996C154EBBFBFDA0099A18E29326E1'  # Yu Watanabe <watanabe.yu+github@gmail.com>
@@ -38,7 +38,7 @@ sha512sums=('SKIP'
             '5468867509f16e1955242db235aad760672545ab2d7f74d7f5316904494b9218db1dde0d008e789fbfbed8a82b3144f20f2c927f224ca5e9f3a98becd517864f'
             '285ac182e5666317bef8c91c9559b71325a0bd42352289800e13a8724c883dd0bc903e731eef3f6238e5f261c75c3308886627221fda2d2e4170e5626e9adc1d'
             'c5845849a8c66cc1192b1f263098b379c983f779c9521771c6dddc5271e75e96672dce4db112895dcd43f129f884353ecbbab4103c704fbd046657f269a324e1'
-            '23da52e40c71668494d92095b4028a8ad3be625315a256843341bdcb07455531e644fe6930921bad3aebae79b40369cce0261ac09a2a1f5f2543dd135abfb7c3')
+            'c8a14c044504bd6117918a9da0b236519417d41c4ff7959d8642f949199107c767d4337b5f730ea3a7827f6757272836596b0dfbe4785ca550f8008362189193')
 
 _backports=(
 )
@@ -72,7 +72,7 @@ build() {
     local _meson_options=() _targets=()
 
     _meson_options+=(
-        -Dversion-tag="${_tag_name/-/\~}-${pkgrel}-artix"
+        -Dversion-tag="${_tag_name}-${pkgrel}-artix"
         -Dshared-lib-tag="${pkgver}-${pkgrel}"
         -Dmode=release
 
@@ -201,10 +201,6 @@ build() {
         -Dukify=disabled
         -Dtpm2=disabled
     )
-
-    export CFLAGS="${CFLAGS/_FORTIFY_SOURCE=3/_FORTIFY_SOURCE=2}"
-    export CXXFLAGS="${CXXFLAGS/_FORTIFY_SOURCE=3/_FORTIFY_SOURCE=2}"
-
 
     artix-meson "$_pkgbase" build "${_meson_options[@]}"
 
