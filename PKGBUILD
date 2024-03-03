@@ -13,7 +13,7 @@ pkgdesc='Userspace device file manager'
 _tag='4003dd6754e3446691402d3cc389fbfd4faccc90' # git rev-parse v${_tag_name}
 _tag_name=255.4
 pkgver="${_tag_name/~/}"
-pkgrel=1
+pkgrel=2
 arch=('x86_64')
 url='https://www.github.com/systemd/systemd'
 license=('GPL-2.0-or-later' 'LGPL-2.1-or-later')
@@ -28,15 +28,12 @@ validpgpkeys=('63CDA1E5D3FC22B998D20DD6327F26951A015CC4'  # Lennart Poettering <
 source=("git+https://github.com/systemd/systemd-stable#tag=${_tag}" #?signed
         "git+https://github.com/systemd/systemd#tag=v${_tag_name%.*}" #?signed
         "git+https://gitea.artixlinux.org/artix/alpm-hooks.git#tag=${_alpm}"
-        initcpio-{hook,install}-udev
         0001-Use-Arch-Linux-device-access-groups.patch
         0001-artix-standalone-install.patch
 )
 sha512sums=('SKIP'
             'SKIP'
             'SKIP'
-            '5468867509f16e1955242db235aad760672545ab2d7f74d7f5316904494b9218db1dde0d008e789fbfbed8a82b3144f20f2c927f224ca5e9f3a98becd517864f'
-            '285ac182e5666317bef8c91c9559b71325a0bd42352289800e13a8724c883dd0bc903e731eef3f6238e5f261c75c3308886627221fda2d2e4170e5626e9adc1d'
             'c5845849a8c66cc1192b1f263098b379c983f779c9521771c6dddc5271e75e96672dce4db112895dcd43f129f884353ecbbab4103c704fbd046657f269a324e1'
             'c8a14c044504bd6117918a9da0b236519417d41c4ff7959d8642f949199107c767d4337b5f730ea3a7827f6757272836596b0dfbe4785ca550f8008362189193')
 
@@ -306,10 +303,6 @@ package_udev() {
     for m in udev.conf.5 iocost.conf.5 udev.7 udevadm.8 systemd-hwdb.8; do
         _inst_man "$m"
     done
-
-    # initcpio
-    install -vD -m0644 initcpio-install-udev "${pkgdir}"/usr/lib/initcpio/install/udev
-    install -vD -m0644 initcpio-hook-udev "${pkgdir}"/usr/lib/initcpio/hooks/udev
 
     # pacman hooks
     make -C alpm-hooks DESTDIR="${pkgdir}" install_udev
