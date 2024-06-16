@@ -3,15 +3,15 @@
 # Contributor: Dave Reisner <dreisner@archlinux.org>
 # Contributor: Tom Gundersen <teg@jklm.no>
 
-_pkgbase=systemd-stable
+_pkgbase=systemd
 
 _alpm=1.7
-_tag=255.6
+_tag='256'
 
 pkgbase=udev
 pkgname=('udev' 'libudev' 'esysusers' 'etmpfiles')
 pkgdesc='Userspace device file manager'
-pkgver="${_tag/~/}"
+pkgver="${_tag/[-~]/}"
 pkgrel=1
 arch=('x86_64')
 url='https://www.github.com/systemd/systemd'
@@ -44,17 +44,15 @@ validpgpkeys=('63CDA1E5D3FC22B998D20DD6327F26951A015CC4'  # Lennart Poettering <
               'A9EA9081724FFAE0484C35A1A81CEA22BC8C7E2E'  # Luca Boccassi <luca.boccassi@gmail.com>
               '9A774DB5DB996C154EBBFBFDA0099A18E29326E1'  # Yu Watanabe <watanabe.yu+github@gmail.com>
               '5C251B5FC54EB2F80F407AAAC54CA336CFEB557E') # Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl>
-source=("git+https://github.com/systemd/systemd-stable#tag=v${_tag}" #?signed
-        "git+https://github.com/systemd/systemd#tag=v${_tag%.*}" #?signed
+source=("git+https://github.com/systemd/systemd#tag=v${_tag}?signed"
         "git+https://gitea.artixlinux.org/artix/alpm-hooks.git#tag=${_alpm}"
         0001-Use-Arch-Linux-device-access-groups.patch
         0001-artix-standalone-install.patch
 )
-sha512sums=('c1de1eb0d0ef6d8da81a105cdfcb86634bed6f46ab1038de9ab786fd85f59524e7eb30fe1d02dbf2c3b3a29dc66d04a102b2274a09ad3d2c18953c380099aa0e'
-            'd430427987309483c99062adb02741d25239ba5fbb97053ef817c0c5a0a935328af9c8b651de2b119b0e851dcf6623f01343859735ff81d7013ab0133e67c7ea'
+sha512sums=('0a82b5708d1025dbe12a722e3b7e946c5136a17ea2d9b73afba02da474873b3373cd7c1c4eff8bd612c2b16321f31a6109e3c34e548e48ae88fa5bb3fab00383'
             '273f53fcb219d1aa5b3d5b51b5b5b80fe32d452d8d019831a5b4340bb825f3b80177ce03ad6b797eb94585916715852a22613d400dd34ca39da2b7a3dd9ed93a'
             'c5845849a8c66cc1192b1f263098b379c983f779c9521771c6dddc5271e75e96672dce4db112895dcd43f129f884353ecbbab4103c704fbd046657f269a324e1'
-            '28882b12d640938ac36b3a8a6ede1aa58185b125beb10a58c63f8ee9a18096da29b0afe31e8db04e5c37d7bd315effb75425320d96fe2b7252292b1d3e955cae')
+            'df2a2a31bffe6b2572f789b12871fc95664e7191a292b0e8bc01bbd94048dec00383fa4579f2a6eefc20d9f311a8a1078b2c5aaaa77889b3c34b3a964098f431')
 
 _backports=(
 )
@@ -64,9 +62,6 @@ _reverts=(
 
 prepare() {
     cd "$_pkgbase"
-
-    # add upstream repository for cherry-picking
-    git remote add -f upstream ../systemd
 
     local _c
     for _c in "${_backports[@]}"; do
@@ -131,6 +126,8 @@ build() {
 
         -Ddefault-llmnr=no
         -Ddefault-mdns=no
+
+        -Dsshconfdir=no
 
         -Dadm-group=false
         -Danalyze=false
@@ -317,7 +314,7 @@ package_udev() {
         'bash'
         'hwdata'
         'kbd'
-        'kmod' 'libkmod.so'
+        'kmod'
         'libcap.so'
         'libudev'
         'util-linux' 'libblkid.so'
