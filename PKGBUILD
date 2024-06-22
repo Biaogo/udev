@@ -6,7 +6,7 @@
 _pkgbase=systemd
 
 _alpm=1.7
-_tag='256'
+_tag='256.1'
 
 pkgbase=udev
 pkgname=('udev' 'libudev' 'esysusers' 'etmpfiles')
@@ -49,7 +49,7 @@ source=("git+https://github.com/systemd/systemd#tag=v${_tag}?signed"
         0001-Use-Arch-Linux-device-access-groups.patch
         0001-artix-standalone-install.patch
 )
-sha512sums=('0a82b5708d1025dbe12a722e3b7e946c5136a17ea2d9b73afba02da474873b3373cd7c1c4eff8bd612c2b16321f31a6109e3c34e548e48ae88fa5bb3fab00383'
+sha512sums=('1ba38dd45cd910c7a2b4c7f23f982c5b0e5b13cd5874571ebc9b609ff85c058cecdb61019141ef2010fd4882c3ffc5a13a2b0d6370db4067ad90c28b83de6760'
             '273f53fcb219d1aa5b3d5b51b5b5b80fe32d452d8d019831a5b4340bb825f3b80177ce03ad6b797eb94585916715852a22613d400dd34ca39da2b7a3dd9ed93a'
             'c5845849a8c66cc1192b1f263098b379c983f779c9521771c6dddc5271e75e96672dce4db112895dcd43f129f884353ecbbab4103c704fbd046657f269a324e1'
             'df2a2a31bffe6b2572f789b12871fc95664e7191a292b0e8bc01bbd94048dec00383fa4579f2a6eefc20d9f311a8a1078b2c5aaaa77889b3c34b3a964098f431')
