@@ -90,7 +90,7 @@ build() {
     local _meson_ver="${pkgver}-${pkgrel}"
 
     _meson_options+=(
-        -Dversion-tag="${_meson_ver}-artix"
+        -Dversion-tag="${_meson_ver}-neko"
         -Dshared-lib-tag="${_meson_ver/~/}"
         -Dmode=release
 
@@ -106,8 +106,8 @@ build() {
 
         -Dgshadow=false
 
-        -Dsbat-distro='artix'
-        -Dsbat-distro-summary='Artix Linux'
+        -Dsbat-distro='neko'
+        -Dsbat-distro-summary='Neko Linux'
         -Dsbat-distro-pkgname="${pkgname}"
         -Dsbat-distro-version="${pkgver}"
 
